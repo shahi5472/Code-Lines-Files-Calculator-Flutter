@@ -3,6 +3,13 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
+class FileNameSize {
+  String name;
+  int size;
+
+  FileNameSize(this.name, this.size);
+}
+
 void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
@@ -27,30 +34,50 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final List<String> programmingLanguages = [
-    'Dart',
-    'Java',
-    'Kotlin',
-    'Python',
-    'PHP',
-    'C',
-    'C++',
-    'JS',
-    'TS',
-    'XML',
-    'HTML',
-    'CSS',
-    'JSON',
-
+    'dart',
+    'java',
+    'kt',
+    'py',
+    'php',
+    'c',
+    'cpp',
+    'js',
+    'ts',
+    'xml',
+    'html',
+    'css',
+    'json',
+    'swift',
+    'cs',
+    'go',
+    'rb',
+    'r',
+    'cobol',
+    'py3',
+    'py2',
+    'pl',
+    'rust',
   ];
 
-  String selectedLanguage = 'Dart';
+  String capitalize(String str) {
+    List<String> words = str.split(' ');
+    List<String> capitalizedWords = [];
+    for (String word in words) {
+      String capitalizedWord =
+          word[0].toUpperCase() + word.substring(1, word.length);
+      capitalizedWords.add(capitalizedWord);
+    }
+    return capitalizedWords.join(' ');
+  }
+
+  String selectedLanguage = 'dart';
   String? selectedFolderPath;
   String? result;
 
   int totalLines = 0;
   int totalFiles = 0;
 
-  List<String> fileNames = [];
+  List<FileNameSize> fileNames = [];
 
   bool isChecked = false;
 
@@ -59,9 +86,41 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          const SliverAppBar(
-            title: Text('Code Lines & Files Calculator'),
+          SliverAppBar(
+            title: const Text('Code Lines & Files Calculator'),
             centerTitle: true,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text('Code Lines & Files Calculator'),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: const [
+                            Text(
+                                'You can count files and read how many lines of code your write for the project. You have to do select the folder and select the language after selecting those then click on calculate button it will show the result. See the screenshots.'),
+                            SizedBox(height: 20),
+                            Text('Develop by: S.m. Kamal Hussain Shahi'),
+                          ],
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: const Text('OK'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
+            ],
           ),
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
@@ -74,7 +133,7 @@ class _HomePageState extends State<HomePage> {
                     items: List.generate(programmingLanguages.length, (index) {
                       return DropdownMenuItem<String>(
                         value: programmingLanguages[index],
-                        child: Text(programmingLanguages[index]),
+                        child: Text(capitalize(programmingLanguages[index])),
                       );
                     }),
                     value: selectedLanguage,
@@ -145,23 +204,43 @@ class _HomePageState extends State<HomePage> {
                     ),
                   const SizedBox(height: 20),
                   if (isChecked)
-                    if (fileNames.isNotEmpty)
-                      Wrap(
-                        children: List.generate(fileNames.length, (index) {
-                          return Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Chip(
-                              label: Text(fileNames[index].toUpperCase()),
-                            ),
-                          );
-                        }),
-                      ),
+                    if (fileNames.isNotEmpty) _buildChipBuild(),
                 ],
               ),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Wrap _buildChipBuild() {
+    return Wrap(
+      children: List.generate(fileNames.length, (index) {
+        return Container(
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+          margin: const EdgeInsets.only(right: 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(50),
+            color: Colors.black26,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(child: Text(fileNames[index].name)),
+              const SizedBox(width: 10),
+              Flexible(
+                child: Text(
+                  fileNames[index].size.toString(),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      }),
     );
   }
 
@@ -187,9 +266,11 @@ class _HomePageState extends State<HomePage> {
               .split('/')
               .last
               .contains('.${selectedLanguage.toLowerCase()}')) {
-            fileNames.add(fileContent[i].path.split('/').last);
+            int value = await readLine(fileContent[i].path);
+            fileNames
+                .add(FileNameSize(fileContent[i].path.split('/').last, value));
             totalFiles += 1;
-            totalLines += await readLine(fileContent[i].path);
+            totalLines += value;
           }
         }
       }
