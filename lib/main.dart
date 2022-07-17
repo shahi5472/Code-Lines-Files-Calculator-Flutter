@@ -216,10 +216,11 @@ class _HomePageState extends State<HomePage> {
 
   Wrap _buildChipBuild() {
     return Wrap(
+      spacing: 10,
+      runSpacing: 10,
       children: List.generate(fileNames.length, (index) {
         return Container(
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-          margin: const EdgeInsets.only(right: 8),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(50),
             color: Colors.black26,
