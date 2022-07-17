@@ -20,6 +20,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Code Lines & Files Calculator',
       theme: ThemeData(primarySwatch: Colors.blue),
+      debugShowCheckedModeBanner: false,
       home: const HomePage(),
     );
   }
@@ -59,17 +60,6 @@ class _HomePageState extends State<HomePage> {
     'rust',
   ];
 
-  String capitalize(String str) {
-    List<String> words = str.split(' ');
-    List<String> capitalizedWords = [];
-    for (String word in words) {
-      String capitalizedWord =
-          word[0].toUpperCase() + word.substring(1, word.length);
-      capitalizedWords.add(capitalizedWord);
-    }
-    return capitalizedWords.join(' ');
-  }
-
   String selectedLanguage = 'dart';
   String? selectedFolderPath;
   String? result;
@@ -89,23 +79,38 @@ class _HomePageState extends State<HomePage> {
           SliverAppBar(
             title: const Text('Code Lines & Files Calculator'),
             centerTitle: true,
+            pinned: true,
             actions: [
               IconButton(
-                icon: const Icon(Icons.menu),
+                onPressed: () => clearVariables(),
+                icon: const Icon(Icons.clean_hands_rounded),
+              ),
+              IconButton(
+                onPressed: () => sortBySize(),
+                icon: const Icon(Icons.sort),
+              ),
+              IconButton(
+                icon: const Icon(Icons.info_outline),
                 onPressed: () {
                   showDialog(
                     context: context,
                     builder: (BuildContext context) {
                       return AlertDialog(
                         title: const Text('Code Lines & Files Calculator'),
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: const [
-                            Text(
-                                'You can count files and read how many lines of code your write for the project. You have to do select the folder and select the language after selecting those then click on calculate button it will show the result. See the screenshots.'),
-                            SizedBox(height: 20),
-                            Text('Develop by: S.m. Kamal Hussain Shahi'),
-                          ],
+                        content: SingleChildScrollView(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: const [
+                              Text(
+                                  'You can count files and read how many lines of code your write for the project. You have to do select the folder and select the language after selecting those then click on calculate button it will show the result. See the screenshots.'),
+                              SizedBox(height: 20),
+                              Align(
+                                alignment: Alignment.center,
+                                child: Text(
+                                    'Develop by: S.m. Kamal Hussain Shahi'),
+                              ),
+                            ],
+                          ),
                         ),
                         actions: [
                           TextButton(
@@ -157,8 +162,10 @@ class _HomePageState extends State<HomePage> {
                           });
                         },
                       ),
-                      const SizedBox(width: 20),
-                      const Text('Show File names')
+                      const Text(
+                        'Show File names',
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ],
                   ),
                   const SizedBox(height: 20),
@@ -297,5 +304,35 @@ class _HomePageState extends State<HomePage> {
       debugPrint('Error :: $e');
     }
     return lines;
+  }
+
+  void sortBySize() {
+    if (fileNames.isNotEmpty) {
+      fileNames.sort((a, b) => a.size.compareTo(b.size));
+      setState(() {});
+    }
+  }
+
+  void clearVariables() {
+    setState(() {
+      selectedLanguage = 'dart';
+      selectedFolderPath = null;
+      result = null;
+      totalLines = 0;
+      totalFiles = 0;
+      fileNames = [];
+      isChecked = false;
+    });
+  }
+
+  String capitalize(String str) {
+    List<String> words = str.split(' ');
+    List<String> capitalizedWords = [];
+    for (String word in words) {
+      String capitalizedWord =
+          word[0].toUpperCase() + word.substring(1, word.length);
+      capitalizedWords.add(capitalizedWord);
+    }
+    return capitalizedWords.join(' ');
   }
 }
